@@ -1,5 +1,5 @@
-#ifndef Player
-#define Player
+#ifndef PLAYER_H
+#define PLAYER_H
 
 #include "Components.h"
 
@@ -9,7 +9,8 @@ class Player
     Velocity velocity;
     Mesh mesh;
 
-    // Player();
+public:
+    Player();
     // ~Player();
 };
 
