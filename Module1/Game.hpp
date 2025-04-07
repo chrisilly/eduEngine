@@ -86,7 +86,7 @@ private:
     } pointlight;
 
     // (Placeholder) Player data
-    struct Player
+    struct PlaceholderPlayer
     {
         glm::vec3 pos = glm_aux::vec3_000;
         float velocity{ 6.0f };
@@ -94,7 +94,7 @@ private:
         // Local vectors & view ray (computed when camera/player is updated)
         glm::vec3 fwd, right;
         glm_aux::Ray viewRay;
-    } player;
+    } placeholderPlayer;
 
     // Game meshes
     std::shared_ptr<eeng::RenderableMesh> grassMesh, horseMesh, characterMesh;

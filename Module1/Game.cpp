@@ -95,7 +95,7 @@ void Game::update(
         glm::vec4(100.0f, 100.0f, 100.0f, 1.0f));
 
     characterWorldMatrix1 = glm_aux::TRS(
-        player.pos,
+        placeholderPlayer.pos,
         0.0f, { 0, 1, 0 },
         { 0.03f, 0.03f, 0.03f });
 
@@ -110,9 +110,9 @@ void Game::update(
         { 0.03f, 0.03f, 0.03f });
 
     // Intersect player view ray with AABBs of other objects 
-    glm_aux::intersect_ray_AABB(player.viewRay, character_aabb2.min, character_aabb2.max);
-    glm_aux::intersect_ray_AABB(player.viewRay, character_aabb3.min, character_aabb3.max);
-    glm_aux::intersect_ray_AABB(player.viewRay, horse_aabb.min, horse_aabb.max);
+    glm_aux::intersect_ray_AABB(placeholderPlayer.viewRay, character_aabb2.min, character_aabb2.max);
+    glm_aux::intersect_ray_AABB(placeholderPlayer.viewRay, character_aabb3.min, character_aabb3.max);
+    glm_aux::intersect_ray_AABB(placeholderPlayer.viewRay, horse_aabb.min, horse_aabb.max);
 
     // We can also compute a ray from the current mouse position,
     // to use for object picking and such ...
@@ -177,15 +177,15 @@ void Game::render(
     drawcallCount = forwardRenderer->endPass();
 
     // Draw player view ray
-    if (player.viewRay)
+    if (placeholderPlayer.viewRay)
     {
         shapeRenderer->push_states(ShapeRendering::Color4u{ 0xff00ff00 });
-        shapeRenderer->push_line(player.viewRay.origin, player.viewRay.point_of_contact());
+        shapeRenderer->push_line(placeholderPlayer.viewRay.origin, placeholderPlayer.viewRay.point_of_contact());
     }
     else
     {
         shapeRenderer->push_states(ShapeRendering::Color4u{ 0xffffffff });
-        shapeRenderer->push_line(player.viewRay.origin, player.viewRay.origin + player.viewRay.dir * 100.0f);
+        shapeRenderer->push_line(placeholderPlayer.viewRay.origin, placeholderPlayer.viewRay.origin + placeholderPlayer.viewRay.dir * 100.0f);
     }
     shapeRenderer->pop_states<ShapeRendering::Color4u>();
 
@@ -336,17 +336,17 @@ void Game::updatePlayer(
     bool D = input->IsKeyPressed(Key::D);
 
     // Compute vectors in the local space of the player
-    player.fwd = glm::vec3(glm_aux::R(camera.yaw, glm_aux::vec3_010) * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f));
-    player.right = glm::cross(player.fwd, glm_aux::vec3_010);
+    placeholderPlayer.fwd = glm::vec3(glm_aux::R(camera.yaw, glm_aux::vec3_010) * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f));
+    placeholderPlayer.right = glm::cross(placeholderPlayer.fwd, glm_aux::vec3_010);
 
     // Compute the total movement as a 3D vector
     auto movement =
-        player.fwd * player.velocity * deltaTime * ((W ? 1.0f : 0.0f) + (S ? -1.0f : 0.0f)) +
-        player.right * player.velocity * deltaTime * ((A ? -1.0f : 0.0f) + (D ? 1.0f : 0.0f));
+        placeholderPlayer.fwd * placeholderPlayer.velocity * deltaTime * ((W ? 1.0f : 0.0f) + (S ? -1.0f : 0.0f)) +
+        placeholderPlayer.right * placeholderPlayer.velocity * deltaTime * ((A ? -1.0f : 0.0f) + (D ? 1.0f : 0.0f));
 
     // Update player position and forward view ray
-    player.pos += movement;
-    player.viewRay = glm_aux::Ray{ player.pos + glm::vec3(0.0f, 2.0f, 0.0f), player.fwd };
+    placeholderPlayer.pos += movement;
+    placeholderPlayer.viewRay = glm_aux::Ray{ placeholderPlayer.pos + glm::vec3(0.0f, 2.0f, 0.0f), placeholderPlayer.fwd };
 
     // Update camera to track the player
     camera.lookAt += movement;
