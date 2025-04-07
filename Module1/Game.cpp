@@ -88,16 +88,20 @@ void Game::update(
 {
     updateCamera(input);
 
-    updatePlayer(deltaTime, input);
+    #if TOGGLE_PLACEHOLDER_PLAYER
+    updatePlaceholderPlayer(deltaTime, input);
+    #endif
 
     pointlight.pos = glm::vec3(
         glm_aux::R(time * 0.1f, { 0.0f, 1.0f, 0.0f }) *
         glm::vec4(100.0f, 100.0f, 100.0f, 1.0f));
 
+    #if TOGGLE_PLACEHOLDER_PLAYER
     characterWorldMatrix1 = glm_aux::TRS(
         placeholderPlayer.pos,
         0.0f, { 0, 1, 0 },
         { 0.03f, 0.03f, 0.03f });
+    #endif
 
     characterWorldMatrix2 = glm_aux::TRS(
         { -3, 0, 0 },
@@ -109,10 +113,12 @@ void Game::update(
         time * glm::radians(50.0f), { 0, 1, 0 },
         { 0.03f, 0.03f, 0.03f });
 
+    #if TOGGLE_PLACEHOLDER_PLAYER
     // Intersect player view ray with AABBs of other objects 
     glm_aux::intersect_ray_AABB(placeholderPlayer.viewRay, character_aabb2.min, character_aabb2.max);
     glm_aux::intersect_ray_AABB(placeholderPlayer.viewRay, character_aabb3.min, character_aabb3.max);
     glm_aux::intersect_ray_AABB(placeholderPlayer.viewRay, horse_aabb.min, horse_aabb.max);
+    #endif
 
     // We can also compute a ray from the current mouse position,
     // to use for object picking and such ...
@@ -176,6 +182,7 @@ void Game::render(
     // End rendering pass
     drawcallCount = forwardRenderer->endPass();
 
+    #if TOGGLE_PLACEHOLDER_PLAYER
     // Draw player view ray
     if (placeholderPlayer.viewRay)
     {
@@ -188,6 +195,7 @@ void Game::render(
         shapeRenderer->push_line(placeholderPlayer.viewRay.origin, placeholderPlayer.viewRay.origin + placeholderPlayer.viewRay.dir * 100.0f);
     }
     shapeRenderer->pop_states<ShapeRendering::Color4u>();
+    #endif
 
     // Draw object bases
     {
@@ -324,7 +332,8 @@ void Game::updateCamera(
     camera.pos = camera.lookAt + glm::vec3(rotatedPos);
 }
 
-void Game::updatePlayer(
+#if TOGGLE_PLACEHOLDER_PLAYER
+void Game::updatePlaceholderPlayer(
     float deltaTime,
     InputManagerPtr input)
 {
@@ -347,9 +356,9 @@ void Game::updatePlayer(
     // Update player position and forward view ray
     placeholderPlayer.pos += movement;
     placeholderPlayer.viewRay = glm_aux::Ray{ placeholderPlayer.pos + glm::vec3(0.0f, 2.0f, 0.0f), placeholderPlayer.fwd };
-
+    
     // Update camera to track the player
     camera.lookAt += movement;
     camera.pos += movement;
-
 }
+#endif
