@@ -11,6 +11,11 @@
 #include "ShaderLoader.h"
 #include "Log.hpp"
 
+#if NO_ENTITY_RENDERER
+#include <entt/entt.hpp>
+#include "Components.h"
+#endif
+
 namespace
 {
     std::string file_to_string(const std::string &filename)
@@ -216,5 +221,23 @@ namespace eeng
 
         glBindVertexArray(0);
     }
+
+    #if NO_ENTITY_RENDERER
+    void ForwardRenderer::renderEntityMeshes(std::shared_ptr<entt::registry> registry)
+    {
+        auto view = registry->view<Transform, Mesh>();
+        for (auto entity : view)
+        {
+            const auto &transform = view.get<Transform>(entity);
+            const auto &mesh = view.get<Mesh>(entity);
+
+            glm::mat4 WorldMatrix = glm::translate(glm::mat4(1.0f), transform.position) *
+                glm::scale(glm::mat4(1.0f), transform.scale) *
+                glm::mat4(transform.rotation);
+
+            renderMesh(mesh.mesh, WorldMatrix);
+        }
+    }
+    #endif
 
 } // namespace eeng

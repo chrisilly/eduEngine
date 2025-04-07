@@ -4,9 +4,11 @@
 #ifndef ForwardRenderer_hpp
 #define ForwardRenderer_hpp
 
-#include <glm/glm.hpp>
+#include <entt/entt.hpp>
 #include "glcommon.h"
 #include "RenderableMesh.hpp"
+
+#define NO_ENTITY_RENDERER 1
 
 namespace eeng
 {
@@ -73,6 +75,12 @@ namespace eeng
         /// @param WorldMatrix Instance world transform
         void renderMesh(const std::shared_ptr<RenderableMesh> mesh,
                         const glm::mat4 &WorldMatrix);
+        
+        #if NO_ENTITY_RENDERER
+        /// @brief Render all meshes in the registry
+        /// @param registry Entity registry to render meshes from
+        void renderEntityMeshes(std::shared_ptr<entt::registry> registry);
+        #endif
     };
 
 using ForwardRendererPtr = std::shared_ptr<ForwardRenderer>;

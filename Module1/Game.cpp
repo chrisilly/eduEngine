@@ -4,6 +4,7 @@
 #include "imgui.h"
 #include "Log.hpp"
 #include "Game.hpp"
+#include "Components.h"
 
 bool Game::init()
 {
@@ -13,22 +14,40 @@ bool Game::init()
     shapeRenderer = std::make_shared<ShapeRendering::ShapeRenderer>();
     shapeRenderer->init();
 
+    // entityRenderer = EntityRenderer(forwardRenderer);
+    // entityRenderer = EntityRenderer();
+
     // Do some entt stuff
+    // const Transform defaultTransform = Transform{ { 0, 0, 0 }, { 1, 1, 1 }, { glm::mat3(1.0f) } };
     entity_registry = std::make_shared<entt::registry>();
+    entt::entity player = entity_registry->create();
+    entity_registry->emplace<Transform>(player, Transform{ { 0, 0, 0 }, { 1, 1, 1 }, { glm::mat3(1.0f) } });
+    entity_registry->emplace<Velocity>(player, Velocity{ { 0, 0, 0 } });
+    entity_registry->emplace<Mesh>(player, Mesh{ std::make_shared<eeng::RenderableMesh>() });
+
+    #if 0
     auto ent1 = entity_registry->create();
     struct Tfm
     {
         float x, y, z;
     };
     entity_registry->emplace<Tfm>(ent1, Tfm{});
-
+    #endif
+    
     // Grass
     grassMesh = std::make_shared<eeng::RenderableMesh>();
     grassMesh->load("assets/grass/grass_trees_merged2.fbx", false);
-
+    
     // Horse
     horseMesh = std::make_shared<eeng::RenderableMesh>();
-    horseMesh->load("assets/Animals/Horse.fbx", false);
+    // horseMesh->load("assets/Animals/Horse.fbx", false);
+    // Load horse mesh onto every entity in the registry
+    auto view = entity_registry->view<Mesh>();
+    for(auto entity : view)
+    {
+        auto& mesh = view.get<Mesh>(entity);
+        mesh.mesh->load("assets/Animals/Horse.fbx", false);
+    }
 
     // Character
     characterMesh = std::make_shared<eeng::RenderableMesh>();
@@ -178,6 +197,10 @@ void Game::render(
     characterMesh->animate(2, time * characterAnimSpeed);
     forwardRenderer->renderMesh(characterMesh, characterWorldMatrix3);
     character_aabb3 = characterMesh->m_model_aabb.post_transform(characterWorldMatrix3);
+
+    // Entities
+    forwardRenderer->renderEntityMeshes(entity_registry);
+    // entityRenderer.render(entity_registry);
 
     // End rendering pass
     drawcallCount = forwardRenderer->endPass();
