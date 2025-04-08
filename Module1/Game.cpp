@@ -4,6 +4,7 @@
 #include "imgui.h"
 #include "Log.hpp"
 #include "Game.hpp"
+#include "Components.h"
 
 bool Game::init()
 {
@@ -15,13 +16,12 @@ bool Game::init()
 
     // Do some entt stuff
     entity_registry = std::make_shared<entt::registry>();
-    auto ent1 = entity_registry->create();
-    struct Tfm
-    {
-        float x, y, z;
-    };
-    entity_registry->emplace<Tfm>(ent1, Tfm{});
 
+    auto player = entity_registry->create();
+    auto grass = entity_registry->create();
+    auto horse = entity_registry->create();
+
+#if TOGGLE_GRASS_HORSE_CHARACTER
     // Grass
     grassMesh = std::make_shared<eeng::RenderableMesh>();
     grassMesh->load("assets/grass/grass_trees_merged2.fbx", false);
@@ -77,6 +77,7 @@ bool Game::init()
         { 30.0f, 0.0f, -35.0f },
         35.0f, { 0, 1, 0 },
         { 0.01f, 0.01f, 0.01f });
+#endif
 
     return true;
 }
@@ -88,13 +89,15 @@ void Game::update(
 {
     updateCamera(input);
 
+    pointlight.pos = glm::vec3(
+        glm_aux::R(time * 0.1f, { 0.0f, 1.0f, 0.0f }) *
+        glm::vec4(100.0f, 100.0f, 100.0f, 1.0f));
+        
+#if TOGGLE_GRASS_HORSE_CHARACTER
     #if TOGGLE_PLACEHOLDER_PLAYER
     updatePlaceholderPlayer(deltaTime, input);
     #endif
 
-    pointlight.pos = glm::vec3(
-        glm_aux::R(time * 0.1f, { 0.0f, 1.0f, 0.0f }) *
-        glm::vec4(100.0f, 100.0f, 100.0f, 1.0f));
 
     #if TOGGLE_PLACEHOLDER_PLAYER
     characterWorldMatrix1 = glm_aux::TRS(
@@ -119,6 +122,7 @@ void Game::update(
     glm_aux::intersect_ray_AABB(placeholderPlayer.viewRay, character_aabb3.min, character_aabb3.max);
     glm_aux::intersect_ray_AABB(placeholderPlayer.viewRay, horse_aabb.min, horse_aabb.max);
     #endif
+#endif
 
     // We can also compute a ray from the current mouse position,
     // to use for object picking and such ...
@@ -155,6 +159,7 @@ void Game::render(
     // Begin rendering pass
     forwardRenderer->beginPass(matrices.P, matrices.V, pointlight.pos, pointlight.color, camera.pos);
 
+#if TOGGLE_GRASS_HORSE_CHARACTER
     // Grass
     forwardRenderer->renderMesh(grassMesh, grassWorldMatrix);
     grass_aabb = grassMesh->m_model_aabb.post_transform(grassWorldMatrix);
@@ -178,11 +183,13 @@ void Game::render(
     characterMesh->animate(2, time * characterAnimSpeed);
     forwardRenderer->renderMesh(characterMesh, characterWorldMatrix3);
     character_aabb3 = characterMesh->m_model_aabb.post_transform(characterWorldMatrix3);
+#endif
 
     // End rendering pass
     drawcallCount = forwardRenderer->endPass();
 
-    #if TOGGLE_PLACEHOLDER_PLAYER
+#if TOGGLE_GRASS_HORSE_CHARACTER
+#if TOGGLE_PLACEHOLDER_PLAYER
     // Draw player view ray
     if (placeholderPlayer.viewRay)
     {
@@ -195,7 +202,7 @@ void Game::render(
         shapeRenderer->push_line(placeholderPlayer.viewRay.origin, placeholderPlayer.viewRay.origin + placeholderPlayer.viewRay.dir * 100.0f);
     }
     shapeRenderer->pop_states<ShapeRendering::Color4u>();
-    #endif
+#endif
 
     // Draw object bases
     {
@@ -216,6 +223,7 @@ void Game::render(
         shapeRenderer->push_AABB(grass_aabb.min, grass_aabb.max);
         shapeRenderer->pop_states<ShapeRendering::Color4u>();
     }
+#endif
 
 #if 0
     // Demo draw other shapes
@@ -243,6 +251,7 @@ void Game::renderUI()
     {
     }
 
+#if TOGGLE_GRASS_HORSE_CHARACTER
     if (characterMesh)
     {
         // Combo (drop-down) for animation clip
@@ -302,6 +311,7 @@ void Game::renderUI()
     }
 
     ImGui::SliderFloat("Animation speed", &characterAnimSpeed, 0.1f, 5.0f);
+#endif
 
     ImGui::End(); // end info window
 }

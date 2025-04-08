@@ -8,7 +8,8 @@
 #include "ForwardRenderer.hpp"
 #include "ShapeRenderer.hpp"
 
-#define TOGGLE_PLACEHOLDER_PLAYER 1
+#define TOGGLE_PLACEHOLDER_PLAYER 0
+#define TOGGLE_GRASS_HORSE_CHARACTER 0
 
 /// @brief A Game may hold, update and render 3D geometry and GUI elements
 class Game : public eeng::GameBase
@@ -86,7 +87,8 @@ private:
         glm::vec3 pos;
         glm::vec3 color{ 1.0f, 1.0f, 0.8f };
     } pointlight;
-
+    
+#if TOGGLE_GRASS_HORSE_CHARACTER
     #if TOGGLE_PLACEHOLDER_PLAYER
     // (Placeholder) Player data
     struct PlaceholderPlayer
@@ -113,6 +115,7 @@ private:
     // Placeholder animation state
     int characterAnimIndex = -1;
     float characterAnimSpeed = 1.0f;
+#endif
 
     // Stats
     int drawcallCount = 0;
@@ -122,13 +125,13 @@ private:
     void updateCamera(
         InputManagerPtr input);
 
-    #if TOGGLE_PLACEHOLDER_PLAYER
+#if TOGGLE_PLACEHOLDER_PLAYER
     /// @brief Placeholder system for updating the 'player' based on inputs
     /// @param deltaTime 
     void updatePlaceholderPlayer(
         float deltaTime,
         InputManagerPtr input);
-    #endif
+#endif
 };
 
 #endif
