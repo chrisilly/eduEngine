@@ -7,28 +7,27 @@
 #include "RenderableMesh.hpp"
 
 /// @brief Handles position, scale, and rotation
-class Transform
+struct Transform
 {
-    // float x, y, z;
-
     glm::vec3 position;
     glm::vec3 scale;
     glm::mat3 rotation;
 
 public:
     Transform();
-    // Transform(float x, float y, float z) : {}
-    // void Rotate(float radians, auto axis);
 };
 
 /// @brief Handles linear velocity
-class Velocity
+struct Velocity
 {
-    // glm::vec3 velocity;
+    glm::vec3 velocity;
+
+public:
+    Velocity();
 };
 
 /// @brief A reference to an existing RendeableMesh, a resource that can be shared/reused between entities
-class Mesh
+struct Mesh
 {
     std::shared_ptr<eeng::RenderableMesh> mesh; // if you want to own the resource
     // std::weak_ptr<eeng::RenderableMesh> mesh; // if you want to reference an existing resource without owning it

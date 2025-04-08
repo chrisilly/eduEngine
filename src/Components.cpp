@@ -6,6 +6,11 @@ Mesh::Mesh()
     mesh->load("assets/Animals/Horse.fbx", false);
 }
 
+Velocity::Velocity()
+{
+    velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+}
+
 /// @brief No scaling, no rotation, positioned in origo
 Transform::Transform()
 {
