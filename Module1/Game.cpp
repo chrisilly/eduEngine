@@ -14,11 +14,32 @@ bool Game::init()
     shapeRenderer = std::make_shared<ShapeRendering::ShapeRenderer>();
     shapeRenderer->init();
 
-    // Do some entt stuff
+    entityRenderer = EntityRenderer();
+
+    // Load meshes
+    grassMesh = std::make_shared<eeng::RenderableMesh>();
+    grassMesh->load("assets/grass/grass_trees_merged2.fbx", false);
+
+    // Horse
+    horseMesh = std::make_shared<eeng::RenderableMesh>();
+    horseMesh->load("assets/Animals/Horse.fbx", false);
+
+    // Character
+    characterMesh = std::make_shared<eeng::RenderableMesh>();
+    // Amy 5.0.1 PACK FBX
+    characterMesh->load("assets/Amy/Ch46_nonPBR.fbx");
+    characterMesh->load("assets/Amy/idle.fbx", true);
+    characterMesh->load("assets/Amy/walking.fbx", true);
+    // Remove root motion
+    characterMesh->removeTranslationKeys("mixamorig:Hips");
+
+    // Create Entities
     entity_registry = std::make_shared<entt::registry>();
 
     auto player = entity_registry->create();
     auto grass = entity_registry->create();
+    entity_registry->emplace<Transform>(grass, Transform{});
+    entity_registry->emplace<Mesh>(grass, Mesh{ grassMesh });
     auto horse = entity_registry->create();
 
 #if TOGGLE_GRASS_HORSE_CHARACTER
@@ -158,6 +179,8 @@ void Game::render(
 
     // Begin rendering pass
     forwardRenderer->beginPass(matrices.P, matrices.V, pointlight.pos, pointlight.color, camera.pos);
+
+    entityRenderer.renderEntities(*entity_registry, *forwardRenderer);
 
 #if TOGGLE_GRASS_HORSE_CHARACTER
     // Grass

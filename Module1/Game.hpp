@@ -7,6 +7,7 @@
 #include "RenderableMesh.hpp"
 #include "ForwardRenderer.hpp"
 #include "ShapeRenderer.hpp"
+#include "EntityRenderer.hpp"
 
 #define TOGGLE_PLACEHOLDER_PLAYER 0
 #define TOGGLE_GRASS_HORSE_CHARACTER 0
@@ -53,6 +54,8 @@ private:
     // Entity registry - to use in labs
     std::shared_ptr<entt::registry> entity_registry;
 
+    EntityRenderer entityRenderer;
+
     // Matrices for view, projection and viewport
     struct Matrices
     {
@@ -87,6 +90,9 @@ private:
         glm::vec3 pos;
         glm::vec3 color{ 1.0f, 1.0f, 0.8f };
     } pointlight;
+
+    // Game meshes
+    std::shared_ptr<eeng::RenderableMesh> grassMesh, horseMesh, characterMesh;
     
 #if TOGGLE_GRASS_HORSE_CHARACTER
     #if TOGGLE_PLACEHOLDER_PLAYER
@@ -101,9 +107,6 @@ private:
         glm_aux::Ray viewRay;
     } placeholderPlayer;
     #endif
-
-    // Game meshes
-    std::shared_ptr<eeng::RenderableMesh> grassMesh, horseMesh, characterMesh;
 
     // Game entity transformations
     glm::mat4 characterWorldMatrix1, characterWorldMatrix2, characterWorldMatrix3;

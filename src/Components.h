@@ -12,6 +12,11 @@ struct Transform
     glm::vec3 position;
     glm::vec3 scale;
     glm::mat3 rotation;
+    
+    glm::mat4 transform;
+
+public:
+    Transform() : position(0.0f), scale(1.0f), rotation(1.0f), transform(1.0f) {}
 };
 
 /// @brief Handles linear velocity
