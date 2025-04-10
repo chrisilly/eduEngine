@@ -5,6 +5,7 @@
 #include "Log.hpp"
 #include "Game.hpp"
 #include "Components.h"
+#include "PlayerController.hpp"
 
 bool Game::init()
 {
@@ -49,7 +50,8 @@ bool Game::init()
     horse = entity_registry->create();
     entity_registry->emplace<Transform>(horse, Transform( { 0.0f, 0.0f, 0.0f }, { 0.01f, 0.01f, 0.01f }, glm::mat3(1.0f) ));
     entity_registry->emplace<Mesh>(horse, Mesh{ horseMesh });
-    entity_registry->emplace<Velocity>(horse, Velocity{ { 0.0f, 0.01f, 0.0f } });
+    entity_registry->emplace<Velocity>(horse, Velocity{ { 0.0f, 0.0f, 0.0f } });
+    entity_registry->emplace<PlayerController>(horse, PlayerController(horse));
 
 #if TOGGLE_GRASS_HORSE_CHARACTER
     // Grass
@@ -123,7 +125,8 @@ void Game::update(
         glm_aux::R(time * 0.1f, { 0.0f, 1.0f, 0.0f }) *
         glm::vec4(100.0f, 100.0f, 100.0f, 1.0f));
 
-    // controller.update(*entity_registry, horse);
+    entity_registry->get<PlayerController>(horse).Update(*input, *entity_registry, deltaTime);
+    controller.update(*entity_registry);
         
 #if TOGGLE_GRASS_HORSE_CHARACTER
     #if TOGGLE_PLACEHOLDER_PLAYER
