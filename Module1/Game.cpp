@@ -295,6 +295,14 @@ void Game::renderUI()
     {
     }
 
+    auto view = entity_registry->view<Transform, PlayerController>();
+
+    for (auto [entity, transform, playerController] : view.each())
+    {
+        ImGui::Text("Player position: %f %f %f", transform.position.x, transform.position.y, transform.position.z);
+        // ImGui::SliderFloat("Player scale", &transform.scale, 0.05f, transform.scale);
+    }
+
 #if TOGGLE_GRASS_HORSE_CHARACTER
     if (characterMesh)
     {
