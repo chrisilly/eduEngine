@@ -8,6 +8,7 @@
 #include "ForwardRenderer.hpp"
 #include "ShapeRenderer.hpp"
 #include "EntityRenderer.hpp"
+#include "Controller.hpp"
 
 #define TOGGLE_PLACEHOLDER_PLAYER 0
 #define TOGGLE_GRASS_HORSE_CHARACTER 0
@@ -55,6 +56,7 @@ private:
     std::shared_ptr<entt::registry> entity_registry;
 
     EntityRenderer entityRenderer;
+    Controller controller;
 
     // Matrices for view, projection and viewport
     struct Matrices
@@ -92,6 +94,7 @@ private:
     } pointlight;
 
     // Game meshes
+    entt::entity grass, horse, player;
     std::shared_ptr<eeng::RenderableMesh> grassMesh, horseMesh, characterMesh;
     
 #if TOGGLE_GRASS_HORSE_CHARACTER

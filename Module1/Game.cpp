@@ -16,6 +16,8 @@ bool Game::init()
 
     entityRenderer = EntityRenderer();
 
+    controller = Controller();
+
     // Load meshes
     grassMesh = std::make_shared<eeng::RenderableMesh>();
     grassMesh->load("assets/grass/grass_trees_merged2.fbx", false);
@@ -36,15 +38,18 @@ bool Game::init()
     // Create Entities
     entity_registry = std::make_shared<entt::registry>();
 
-    auto player = entity_registry->create();
+    player = entity_registry->create();
     entity_registry->emplace<Transform>(player, Transform( { 0.0f, 0.0f, 0.0f }, { 0.03f, 0.03f, 0.03f }, glm::mat3(1.0f) ));
     entity_registry->emplace<Mesh>(player, Mesh{ characterMesh });
-    auto grass = entity_registry->create();
+
+    grass = entity_registry->create();
     entity_registry->emplace<Transform>(grass, Transform( { 0.0f, 0.0f, 0.0f }, { 100.0f, 100.0f, 100.0f }, glm::mat3(1.0f) ));
     entity_registry->emplace<Mesh>(grass, Mesh{ grassMesh });
-    auto horse = entity_registry->create();
+
+    horse = entity_registry->create();
     entity_registry->emplace<Transform>(horse, Transform( { 0.0f, 0.0f, 0.0f }, { 0.01f, 0.01f, 0.01f }, glm::mat3(1.0f) ));
     entity_registry->emplace<Mesh>(horse, Mesh{ horseMesh });
+    entity_registry->emplace<Velocity>(horse, Velocity{ { 0.0f, 0.01f, 0.0f } });
 
 #if TOGGLE_GRASS_HORSE_CHARACTER
     // Grass
@@ -117,6 +122,8 @@ void Game::update(
     pointlight.pos = glm::vec3(
         glm_aux::R(time * 0.1f, { 0.0f, 1.0f, 0.0f }) *
         glm::vec4(100.0f, 100.0f, 100.0f, 1.0f));
+
+    // controller.update(*entity_registry, horse);
         
 #if TOGGLE_GRASS_HORSE_CHARACTER
     #if TOGGLE_PLACEHOLDER_PLAYER
