@@ -37,10 +37,14 @@ bool Game::init()
     entity_registry = std::make_shared<entt::registry>();
 
     auto player = entity_registry->create();
+    entity_registry->emplace<Transform>(player, Transform( { 0.0f, 0.0f, 0.0f }, { 0.03f, 0.03f, 0.03f }, glm::mat3(1.0f) ));
+    entity_registry->emplace<Mesh>(player, Mesh{ characterMesh });
     auto grass = entity_registry->create();
-    entity_registry->emplace<Transform>(grass, Transform{});
+    entity_registry->emplace<Transform>(grass, Transform( { 0.0f, 0.0f, 0.0f }, { 100.0f, 100.0f, 100.0f }, glm::mat3(1.0f) ));
     entity_registry->emplace<Mesh>(grass, Mesh{ grassMesh });
     auto horse = entity_registry->create();
+    entity_registry->emplace<Transform>(horse, Transform( { 0.0f, 0.0f, 0.0f }, { 0.01f, 0.01f, 0.01f }, glm::mat3(1.0f) ));
+    entity_registry->emplace<Mesh>(horse, Mesh{ horseMesh });
 
 #if TOGGLE_GRASS_HORSE_CHARACTER
     // Grass
