@@ -38,3 +38,17 @@ I solved it.
 Exact same code and implementation, but when I try to put the implementation in a `.cpp` file instead of in its respective header, I get a bunch of linker errors, even if I use the same `#include` arguments. What in the world?
 
 I couldn't get `weak_ptr` to work, so I opted to use `shared_ptr`.
+
+---
+
+# Lab & Presentaton Feedback
+
+```cpp
+// USE THIS ENTITY ITERATION METHOD INSTEAD!
+for(auto [entity, transform, velocity] : view.each())
+{
+    //...
+    transform.position // do something...
+    //...
+}
+```
