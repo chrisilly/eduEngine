@@ -5,6 +5,8 @@
 #include "Log.hpp"
 #include "Game.hpp"
 #include "Components.h"
+#include "PlayerController.hpp"
+#include "NonPlayerController.hpp"
 
 bool Game::init()
 {
@@ -14,12 +16,48 @@ bool Game::init()
     shapeRenderer = std::make_shared<ShapeRendering::ShapeRenderer>();
     shapeRenderer->init();
 
-    // Do some entt stuff
+    entityRenderer = EntityRenderer();
+
+    controller = Controller();
+
+    // Load meshes
+    grassMesh = std::make_shared<eeng::RenderableMesh>();
+    grassMesh->load("assets/grass/grass_trees_merged2.fbx", false);
+
+    // Horse
+    horseMesh = std::make_shared<eeng::RenderableMesh>();
+    horseMesh->load("assets/Animals/Horse.fbx", false);
+
+    // Character
+    characterMesh = std::make_shared<eeng::RenderableMesh>();
+    // Amy 5.0.1 PACK FBX
+    characterMesh->load("assets/Amy/Ch46_nonPBR.fbx");
+    characterMesh->load("assets/Amy/idle.fbx", true);
+    characterMesh->load("assets/Amy/walking.fbx", true);
+    // Remove root motion
+    characterMesh->removeTranslationKeys("mixamorig:Hips");
+
+    // Create Entities
     entity_registry = std::make_shared<entt::registry>();
 
-    auto player = entity_registry->create();
-    auto grass = entity_registry->create();
-    auto horse = entity_registry->create();
+    player = entity_registry->create();
+    entity_registry->emplace<Transform>(player, Transform( { 0.0f, 0.0f, 0.0f }, { 0.03f, 0.03f, 0.03f }, glm::mat3(1.0f) ));
+    entity_registry->emplace<Mesh>(player, Mesh{ characterMesh });
+    entity_registry->emplace<Velocity>(player, Velocity{ { 0.0f, 0.0f, 0.0f } });
+    entity_registry->emplace<NonPlayerController>(player, NonPlayerController(player, true));
+    entity_registry->get<NonPlayerController>(player).MoveTo({ 5.0f, 0.0f, -10.0f });
+    entity_registry->get<NonPlayerController>(player).MoveTo({ -5.0f, 0.0f, -10.0f });
+    entity_registry->get<NonPlayerController>(player).MoveTo({ 0.0f, 0.0f, 0.0f });
+
+    grass = entity_registry->create();
+    entity_registry->emplace<Transform>(grass, Transform( { 0.0f, 0.0f, 0.0f }, { 100.0f, 100.0f, 100.0f }, glm::mat3(1.0f) ));
+    entity_registry->emplace<Mesh>(grass, Mesh{ grassMesh });
+
+    horse = entity_registry->create();
+    entity_registry->emplace<Transform>(horse, Transform( { 0.0f, 0.0f, 0.0f }, { 0.01f, 0.01f, 0.01f }, glm::mat3(1.0f) ));
+    entity_registry->emplace<Mesh>(horse, Mesh{ horseMesh });
+    entity_registry->emplace<Velocity>(horse, Velocity{ { 0.0f, 0.0f, 0.0f } });
+    entity_registry->emplace<PlayerController>(horse, PlayerController(horse));
 
 #if TOGGLE_GRASS_HORSE_CHARACTER
     // Grass
@@ -92,6 +130,10 @@ void Game::update(
     pointlight.pos = glm::vec3(
         glm_aux::R(time * 0.1f, { 0.0f, 1.0f, 0.0f }) *
         glm::vec4(100.0f, 100.0f, 100.0f, 1.0f));
+
+    entity_registry->get<PlayerController>(horse).Update(*input, *entity_registry, deltaTime);
+    entity_registry->get<NonPlayerController>(player).Update(*entity_registry, deltaTime);
+    controller.update(*entity_registry);
         
 #if TOGGLE_GRASS_HORSE_CHARACTER
     #if TOGGLE_PLACEHOLDER_PLAYER
@@ -158,6 +200,8 @@ void Game::render(
 
     // Begin rendering pass
     forwardRenderer->beginPass(matrices.P, matrices.V, pointlight.pos, pointlight.color, camera.pos);
+
+    entityRenderer.renderEntities(*entity_registry, *forwardRenderer);
 
 #if TOGGLE_GRASS_HORSE_CHARACTER
     // Grass
