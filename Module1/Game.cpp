@@ -6,6 +6,7 @@
 #include "Game.hpp"
 #include "Components.h"
 #include "PlayerController.hpp"
+#include "NonPlayerController.hpp"
 
 bool Game::init()
 {
@@ -42,6 +43,11 @@ bool Game::init()
     player = entity_registry->create();
     entity_registry->emplace<Transform>(player, Transform( { 0.0f, 0.0f, 0.0f }, { 0.03f, 0.03f, 0.03f }, glm::mat3(1.0f) ));
     entity_registry->emplace<Mesh>(player, Mesh{ characterMesh });
+    entity_registry->emplace<Velocity>(player, Velocity{ { 0.0f, 0.0f, 0.0f } });
+    entity_registry->emplace<NonPlayerController>(player, NonPlayerController(player, true));
+    entity_registry->get<NonPlayerController>(player).MoveTo({ 5.0f, 0.0f, -10.0f });
+    entity_registry->get<NonPlayerController>(player).MoveTo({ -5.0f, 0.0f, -10.0f });
+    entity_registry->get<NonPlayerController>(player).MoveTo({ 0.0f, 0.0f, 0.0f });
 
     grass = entity_registry->create();
     entity_registry->emplace<Transform>(grass, Transform( { 0.0f, 0.0f, 0.0f }, { 100.0f, 100.0f, 100.0f }, glm::mat3(1.0f) ));
@@ -126,6 +132,7 @@ void Game::update(
         glm::vec4(100.0f, 100.0f, 100.0f, 1.0f));
 
     entity_registry->get<PlayerController>(horse).Update(*input, *entity_registry, deltaTime);
+    entity_registry->get<NonPlayerController>(player).Update(*entity_registry, deltaTime);
     controller.update(*entity_registry);
         
 #if TOGGLE_GRASS_HORSE_CHARACTER
