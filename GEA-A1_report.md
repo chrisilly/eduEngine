@@ -63,21 +63,6 @@ Because Visual Studio Code was opted for, Ninja and CMake were necessary for con
 
 ### 2.3 Design Choices
 
-#### 2.3.1 Making placeholder artefacts toggleable
-
-The first choice made was to wrap all of the lingering, hard-coded artefacts provided by educators, such as the placeholder player logic, and the initially rendered horse, grass, and characters in a toggleable boolean.
-
-```cpp
-// example of making code toggleable
-#if TOGGLE_PLACEHOLDER_PLAYER
-    // placeholder player logic here...
-#endif
-```
-
-In order to ensure the systems are elegant and proper, it's crucial to remove any code that do not relate to them, so as to not leave room for any confusion or mess; By toggling any objects or artefacts not governed by our own systems, it becomes easier to debug and identify changes as they happen when implementing them, while still being able to refer to the code when needed.
-
-#### 2.3.2 Entity-Component System
-
 The first instinct was to make an `Entity` class that takes a list of components, but this would forgo the data-oriented design provided by the EnTT library. A less data-oriented solution would be perfectly adequate and would still reap the benefits of an entity-component-system, if well-implemented, but would not fulfil the assignment requirements.
 
 Therefore, to conform and make use of the EnTT library, components were defined only with the variables and data that pertain to them. System classes (`Controller` and `EntityRenderer`) were then implemented which impose conditions and behaviour on the entities using and manipulating the data within their given components.
@@ -118,11 +103,28 @@ void ExampleUpdate(entt::registry& registry) // add whatever parameters necessar
 
 ## 4. Testing and Observations
 
-Debug techniques...
+### 4.1 Issues
 
-- Printing position to GUI.
+The undendning linker errors were horrendous. For the sake and value of learning, I ended up avoiding them by implementing method logic in their respective headers as opposed to in `.cpp` files. This was a regretful but necessary step to accomplishing the learning objectives.
 
-- Toggleable code
+I double checked header guards, my includes, and scaled back my implementations, toggling code off one by one until the errors ceased. The errors only ceased when I never called on the methods as defined (but unimplemented) in their headers. Later, upon consulting with the educator responsible for eduEngine, it was revealed to me that new `.cpp` files must be appended in the `CMakeLists.txt` file in order for the build tool to recognise them and their contents.
+
+### 4.2 Debug Practices
+
+The first choice made in taking on this assignment was to wrap all of the lingering, hard-coded artefacts provided by educators, such as the placeholder player logic, and the initially rendered horse, grass, and characters in a toggleable boolean.
+
+```cpp
+// example of making code toggleable
+#if TOGGLE_PLACEHOLDER_PLAYER
+    // placeholder player logic here...
+#endif
+```
+
+By toggling any objects or artefacts not governed by our own systems, it becomes easier to debug and identify changes as they happen when implementing them, while still being able to refer to the code when needed.
+
+Secondly, in order to ensure that the data in the components reflected what was shown at runtime, I utilised the basic debug practice of printing data to the GUI, such as the player position.
+
+Because of the low coupling and high cohesion of the modular entity-component system, not many debugging methods were needed in the implementation of the movement and rendering of entities. The logic was trivial enough to run on the first try after resolving linker errors. More debugging will likely be needed when attempting to implement more and more systems, especially if they interoperate in any way.
 
 ## 5. Reflection and Discussion
 
@@ -134,11 +136,9 @@ Moving over logic from components to systems so as to preserve data-oriented pri
 
 ## 6. Conclusion
 
-
+entity component system good, see repeat testing 
 
 ## 7. References
-
-## 8. Appendices
 
 [^1]: https://github.com/skypjack/entt
 
@@ -147,3 +147,5 @@ Moving over logic from components to systems so as to preserve data-oriented pri
 [^3]: https://github.com/ocornut/imgui
 
 [^4]: https://github.com/g-truc/glm
+
+<!-- ## 8. Appendices -->
