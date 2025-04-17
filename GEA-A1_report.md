@@ -67,6 +67,8 @@ The first instinct was to make an `Entity` class that takes a list of components
 
 Therefore, to conform and make use of the EnTT library, components were defined only with the variables and data that pertain to them. System classes (`Controller` and `EntityRenderer`) were then implemented which impose conditions and behaviour on the entities using and manipulating the data within their given components.
 
+In the current implementation of components and systems, there are getters or methods pertaining to or modifying/updating the data within itself. These are small and single-purpose and allow the systems to employ desired consequence of the modules, without performing tasks outside the scope of its responsibilites. One could create, say, a `TransformManager` system to take care of these minor methods, increasing cohesion and better preserving the data-oriented principle of the components being comprised strictly of data, but this is one degree of cohesion too much for our purposes; it makes further development more obstacled and confusing.
+
 ## 3. Implementation Details
 
 ### 3.1 Components
@@ -128,15 +130,28 @@ Because of the low coupling and high cohesion of the modular entity-component sy
 
 ## 5. Reflection and Discussion
 
-Feedback...
+After receiving peer feedback, it came to light that there was a better way to iterate over the entity registry (using `view`):
 
-Transform Manager not necessary...
+```cpp
+// USE THIS ENTITY ITERATION METHOD INSTEAD!
+for(auto [entity, transform, velocity] : view.each()) // specify and get all entity components in one line
+{
+    // We can access the components now from the get-go:
+    transform.position // do something...
 
-Moving over logic from components to systems so as to preserve data-oriented principles...
+    //...
+}
+```
+
+This illuminates how familiarity with the dependencies, libraries, and tools used is the most limiting factor when implementing systems in eduEngine.
+
+<!-- Moving over logic from components to systems so as to preserve data-oriented principles... -->
 
 ## 6. Conclusion
 
-entity component system good, see repeat testing 
+In theory, as practice has so far reflected, the low coupling and high cohesion of the entity-component system makes it much easier to identify *what* is causing bugs and errors, and ensures that all other parts of the game remain intact when things *do* go wrong.
+
+To ensure that practice continues to reflect this theory, it is critical to understand the libraries, tools, and dependencies used when implementing game engine systems. The key lies in using these tools intelligently, in ways that keep favouring the design philosophy.
 
 ## 7. References
 
