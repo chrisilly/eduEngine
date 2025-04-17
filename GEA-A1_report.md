@@ -63,13 +63,78 @@ Because Visual Studio Code was opted for, Ninja and CMake were necessary for con
 
 ### 2.3 Design Choices
 
+#### 2.3.1 Making placeholder artefacts toggleable
+
+The first choice made was to wrap all of the lingering, hard-coded artefacts provided by educators, such as the placeholder player logic, and the initially rendered horse, grass, and characters in a toggleable boolean.
+
+```cpp
+// example of making code toggleable
+#if TOGGLE_PLACEHOLDER_PLAYER
+    // placeholder player logic here...
+#endif
+```
+
+In order to ensure the systems are elegant and proper, it's crucial to remove any code that do not relate to them, so as to not leave room for any confusion or mess; By toggling any objects or artefacts not governed by our own systems, it becomes easier to debug and identify changes as they happen when implementing them, while still being able to refer to the code when needed.
+
+#### 2.3.2 Entity-Component System
+
+The first instinct was to make an `Entity` class that takes a list of components, but this would forgo the data-oriented design provided by the EnTT library. A less data-oriented solution would be perfectly adequate and would still reap the benefits of an entity-component-system, if well-implemented, but would not fulfil the assignment requirements.
+
+Therefore, to conform and make use of the EnTT library, components were defined only with the variables and data that pertain to them. System classes (`Controller` and `EntityRenderer`) were then implemented which impose conditions and behaviour on the entities using and manipulating the data within their given components.
+
 ## 3. Implementation Details
+
+### 3.1 Components
+
+- `Transform`: Keeps track of entity position, rotation, scale, and its overall transform (4x4 matrix) needed when rendering
+- `Mesh`: Contains a pointer to the entity's `RenderableMesh`
+- `Velocity`: Velocity vector
+- `PlayerController`: Takes an input manager
+- `NonPlayerController`: contains a path (optional) and a loop condition (defaults to false)
+
+In the components, the data structures of the GLM mathematics library was heavily used to keep track of their variables, primarily affording the convenience of well-implemented matrix and vector types.
+
+### 3.2 Systems
+
+- `Controller`: Actually applies all entity velocities to their position, acting as the felt consequence of `PlayerController` and `NonPlayerController` information
+- `EntityRenderer`: Takes an entity registry and uses the `ForwardRenderer` to render all entities, looping through them
+
+Due to the nature of the entity-component system, all systems make use of the same loop structure in their `Update()` methods, utilizing EnTT's entity registry `view` function.
+
+```cpp
+void ExampleUpdate(entt::registry& registry) // add whatever parameters necessary
+{
+    auto view = registry.view<Transform, Velocity>(); // include only the components we need, say for example transform and velocity
+    for (auto entity : view)
+    {
+        // get the required components, say for example transform and velocity
+        auto& transform = view.get<Transform>(entity);
+        auto& velocity = view.get<Velocity>(entity);
+
+        // perform needed logic...
+    }
+}
+```
 
 ## 4. Testing and Observations
 
+Debug techniques...
+
+- Printing position to GUI.
+
+- Toggleable code
+
 ## 5. Reflection and Discussion
 
+Feedback...
+
+Transform Manager not necessary...
+
+Moving over logic from components to systems so as to preserve data-oriented principles...
+
 ## 6. Conclusion
+
+
 
 ## 7. References
 
