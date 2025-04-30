@@ -166,6 +166,13 @@ void Game::update(
     #endif
 #endif
 
+#if BONE_GIZMO_EXAMPLE
+    characterWorldMatrix3 = glm_aux::TRS(
+    { 3, 0, 0 },
+    time * glm::radians(50.0f), { 0, 1, 0 },
+    { 0.03f, 0.03f, 0.03f });
+#endif
+
     // We can also compute a ray from the current mouse position,
     // to use for object picking and such ...
     if (input->GetMouseState().rightButton)
@@ -277,6 +284,38 @@ void Game::render(
         shapeRenderer->pop_states<glm::mat4>();
     }
 #endif
+
+#if BONE_GIZMO_EXAMPLE
+    bool drawSkeleton = true;
+    float axisLen = 25.0f;
+
+    if (drawSkeleton) {
+        for (int i = 0; i < characterMesh->boneMatrices.size(); ++i) {
+            auto IBinverse = glm::inverse(characterMesh->m_bones[i].inversebind_tfm);
+            glm::mat4 global = characterWorldMatrix3 * characterMesh->boneMatrices[i] * IBinverse;
+            glm::vec3 pos = glm::vec3(global[3]);
+
+            glm::vec3 right = glm::vec3(global[0]); // X
+            glm::vec3 up    = glm::vec3(global[1]); // Y
+            glm::vec3 fwd   = glm::vec3(global[2]); // Z
+
+            shapeRenderer->push_states(ShapeRendering::Color4u::Red);
+            shapeRenderer->push_line(pos, pos + axisLen * right);
+
+            shapeRenderer->push_states(ShapeRendering::Color4u::Green);
+            shapeRenderer->push_line(pos, pos + axisLen * up);
+
+            shapeRenderer->push_states(ShapeRendering::Color4u::Blue);
+            shapeRenderer->push_line(pos, pos + axisLen * fwd);
+
+            shapeRenderer->pop_states<ShapeRendering::Color4u>();
+            shapeRenderer->pop_states<ShapeRendering::Color4u>();
+            shapeRenderer->pop_states<ShapeRendering::Color4u>();
+        }
+    }
+#endif
+
+    entityRenderer.renderBones(*entity_registry, *shapeRenderer);
 
     // Draw shape batches
     shapeRenderer->render(matrices.P * matrices.V);

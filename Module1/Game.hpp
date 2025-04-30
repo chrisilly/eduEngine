@@ -12,6 +12,7 @@
 
 #define TOGGLE_PLACEHOLDER_PLAYER 0
 #define TOGGLE_GRASS_HORSE_CHARACTER 0
+#define BONE_GIZMO_EXAMPLE 0
 
 /// @brief A Game may hold, update and render 3D geometry and GUI elements
 class Game : public eeng::GameBase
@@ -121,6 +122,10 @@ private:
     // Placeholder animation state
     int characterAnimIndex = -1;
     float characterAnimSpeed = 1.0f;
+#endif
+
+#if BONE_GIZMO_EXAMPLE
+    glm::mat4 characterWorldMatrix1, characterWorldMatrix2, characterWorldMatrix3;
 #endif
 
     // Stats
