@@ -11,7 +11,7 @@ class PlayerController
 entt::entity player;
 
 public:
-    PlayerController(entt::entity player) : player(player) {}
+    PlayerController(entt::entity& player) : player(player) {}
 
     /// @brief Updates player velocity. Use Controller to update position
     void Update(eeng::InputManager& input, entt::registry& registry, float deltaTime)
@@ -42,6 +42,28 @@ public:
             velocity.velocity *= zStop;
         if(!A && !D)
             velocity.velocity *= xStop;
+    }
+
+    bool pressingWalk(eeng::InputManager& input)
+    {
+        using Key = eeng::InputManager::Key;
+        const bool W = input.IsKeyPressed(Key::W);
+        const bool A = input.IsKeyPressed(Key::A);
+        const bool S = input.IsKeyPressed(Key::S);
+        const bool D = input.IsKeyPressed(Key::D);
+
+        if(W || A || S || D ) return true;
+
+        return false;
+    }
+
+    bool pressingJump(eeng::InputManager& input)
+    {
+        const bool SPACE = input.IsKeyPressed(eeng::InputManager::Key::Space);
+
+        if(SPACE) return true;
+
+        return false;
     }
 };
 

@@ -5,6 +5,8 @@
 #include "Log.hpp"
 #include "Components.h"
 #include "InputManager.hpp"
+#include "PlayerController.hpp"
+#include "NonPlayerController.hpp"
 
 enum AnimationState { Idle, Walk, Jump };
 
@@ -19,40 +21,17 @@ class AnimationStateMachine
 
     void Idle()
     {
-        using Key = eeng::InputManager::Key;
 
-        if(input.IsKeyPressed(Key::Space)) // if velocity.y > 0 ?
-            SetState(AnimationState::Jump);
-        
-        bool W = input.IsKeyPressed(Key::W);
-        bool A = input.IsKeyPressed(Key::A);
-        bool S = input.IsKeyPressed(Key::S);
-        bool D = input.IsKeyPressed(Key::D);
-
-        if(W || A || S || D) // if velocity.x != 0 ?
-            SetState(AnimationState::Walk);
     }
 
-    void Jump()
+    void HandleJump()
     {
-        // if 0.5s passed
-        state = previousState;
+
     }
 
     void Walk()
     {
-        using Key = eeng::InputManager::Key;
 
-        if(input.IsKeyPressed(Key::Space)) // if velocity.y > 0 ?
-            SetState(AnimationState::Jump);
-
-        bool W = input.IsKeyPressed(Key::W);
-        bool A = input.IsKeyPressed(Key::A);
-        bool S = input.IsKeyPressed(Key::S);
-        bool D = input.IsKeyPressed(Key::D);
-
-        if(!W && !A && !S && !D) // if velocity.x = 0 ?
-            SetState(AnimationState::Idle);
     }
 
     /// @brief Use this so that we Log changes and keep track of `previousState`
@@ -66,24 +45,36 @@ class AnimationStateMachine
 public:
     AnimationStateMachine(entt::entity& entity, eeng::InputManager& input) : entity(entity), input(input) {}
 
-    void Update()
+    void Update(entt::registry& registry)
     {
-        switch (state)
+        auto view = registry.view<Mesh, PlayerController>();
+        for(auto [entity, mesh, playerController] : view.each())
         {
-        case AnimationState::Jump:
-            // animate blend from previous state to new state
-            Jump();
-            break;
-            case AnimationState::Walk:
-            // animate blend from previous state to new state
-            Walk();
-            break;
-            case AnimationState::Idle:
-            // animate blend from previous state to new state
-            Idle();
-            break;
-        default:
-            break;
+            switch (state)
+            {
+            case AnimationState::Jump:
+                // animate blend from previous state to new state
+                HandleJump();
+
+                // if(0.5s passed) state = previousState;
+                break;
+                case AnimationState::Walk:
+                // animate blend from previous state to new state
+                Walk();
+
+                if(playerController.pressingJump(input)) state = AnimationState::Jump;
+                if(!playerController.pressingWalk(input)) state = AnimationState::Idle;
+                break;
+                case AnimationState::Idle:
+                // animate blend from previous state to new state
+                Idle();
+
+                if(playerController.pressingJump(input)) state = AnimationState::Jump;
+                if(playerController.pressingWalk(input)) state = AnimationState::Walk;
+                break;
+            default:
+                break;
+            }
         }
     }
 };
