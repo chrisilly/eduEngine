@@ -9,6 +9,7 @@
 #include "ShapeRenderer.hpp"
 #include "EntityRenderer.hpp"
 #include "Controller.hpp"
+#include "Animator.hpp"
 
 #define TOGGLE_PLACEHOLDER_PLAYER 0
 #define TOGGLE_GRASS_HORSE_CHARACTER 0
@@ -58,6 +59,7 @@ private:
 
     EntityRenderer entityRenderer;
     Controller controller;
+    Animator animator;
 
     // Matrices for view, projection and viewport
     struct Matrices

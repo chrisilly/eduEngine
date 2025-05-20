@@ -2,22 +2,24 @@
 #define ANIMATOR_HPP
 
 #include <entt/entt.hpp>
+#include <glm/glm.hpp>
 #include "Log.hpp"
 #include "Components.h"
 #include "InputManager.hpp"
 #include "PlayerController.hpp"
 #include "NonPlayerController.hpp"
 
-enum AnimationState { Idle, Walk, Jump };
+enum AnimationState { Tpose, Idle, Walk, Jump };
 
-class AnimationStateMachine
+class Animator
 {
-    entt::entity entity;
+    float blendFactor = 1.0f;
+    float blendTimer = 0.0f;
+    float blendDuration = 0.3f;
     
     /// @brief Use SetState() to change the value of this
     AnimationState state = AnimationState::Idle;
     AnimationState previousState = state;
-    eeng::InputManager input;
 
     void Idle()
     {
@@ -35,47 +37,64 @@ class AnimationStateMachine
     }
 
     /// @brief Use this so that we Log changes and keep track of `previousState`
-    void SetState(AnimationState newState)
+    void SetState(AnimationState newState, Mesh& mesh, float time)
     {
         previousState = state;
         state = newState;
-        eeng::Log("Animation state changed from %s to %s", previousState, state);
+
+        mesh.mesh->animateBlend(mesh.mesh->getNbrAnimations() < 3 ? previousState : 1, mesh.mesh->getNbrAnimations() < 3 ? state : 1, time, time, blendFactor); // This seems to do nothing?
+        
+        blendTimer = 0.0f;
+    }
+
+    void UpdateBlendTimer(float deltaTime)
+    {
+        blendTimer += deltaTime;
+        blendFactor = glm::clamp(blendTimer / blendDuration, 0.0f, 1.0f);
     }
 
 public:
-    AnimationStateMachine(entt::entity& entity, eeng::InputManager& input) : entity(entity), input(input) {}
+    Animator() = default;
 
-    void Update(entt::registry& registry)
+    void update(entt::registry& registry, eeng::InputManager& input, float time, float deltaTime)
     {
+        UpdateBlendTimer(deltaTime);
+        
         auto view = registry.view<Mesh, PlayerController>();
         for(auto [entity, mesh, playerController] : view.each())
         {
             switch (state)
             {
             case AnimationState::Jump:
-                // animate blend from previous state to new state
-                HandleJump();
-
-                // if(0.5s passed) state = previousState;
+                if(blendTimer >= blendDuration)
+                {
+                    SetState(previousState, mesh, time);
+                }
                 break;
-                case AnimationState::Walk:
-                // animate blend from previous state to new state
-                Walk();
 
-                if(playerController.pressingJump(input)) state = AnimationState::Jump;
-                if(!playerController.pressingWalk(input)) state = AnimationState::Idle;
+            case AnimationState::Walk:
+                if(playerController.pressingJump(input)) SetState(AnimationState::Jump, mesh, time);
+                if(!playerController.pressingWalk(input)) SetState(AnimationState::Idle, mesh, time);
                 break;
-                case AnimationState::Idle:
-                // animate blend from previous state to new state
-                Idle();
 
-                if(playerController.pressingJump(input)) state = AnimationState::Jump;
-                if(playerController.pressingWalk(input)) state = AnimationState::Walk;
+            case AnimationState::Idle:
+                if(playerController.pressingJump(input)) SetState(AnimationState::Jump, mesh, time);
+                if(playerController.pressingWalk(input)) SetState(AnimationState::Walk, mesh, time);
                 break;
+
             default:
+                SetState(AnimationState::Tpose, mesh, time);
                 break;
             }
+
+            mesh.mesh->animate(state, time);
+            ImGui::Text(state == AnimationState::Idle ? "Idle" : state == AnimationState::Walk ? "Walking" : "Jumping");
         }
+    }
+
+    void RenderUI()
+    {
+        ImGui::SliderFloat("Animation BlendFactor", &blendFactor, 0.0f, 1.0f);
     }
 };
 
