@@ -1114,6 +1114,9 @@ namespace eeng
         AnmationTimeFormat animTimeFormat0,
         AnmationTimeFormat animTimeFormat1)
     {
+        if(anim_index1 >= getNbrAnimations()) anim_index1 = 0;
+        if(anim_index0 >= getNbrAnimations()) anim_index0 = 0;
+
         EENG_ASSERT(anim_index0 >= 0 && anim_index0 < getNbrAnimations(), "{0} is not a valid clip index", anim_index0);
         EENG_ASSERT(anim_index1 >= 0 && anim_index1 < getNbrAnimations(), "{0} is not a valid clip index", anim_index1);
 

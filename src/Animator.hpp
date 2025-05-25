@@ -9,7 +9,7 @@
 #include "PlayerController.hpp"
 #include "NonPlayerController.hpp"
 
-enum AnimationState { Idle, Walk, Jump };
+enum AnimationState { Tpose, Idle, Walk, Jump };
 
 class Animator
 {
@@ -68,16 +68,18 @@ public:
                 break;
             }
             
-            UpdateBlendTimer(deltaTime);
+            if(Transitioning()) UpdateBlendTimer(deltaTime);
+
             mesh.mesh->animateBlend(
                 previousState,
                 state,
-                time, 
-                time, 
+                time,
+                time,
                 blendFactor
             );
             
             ImGui::Text(state == AnimationState::Idle ? "Idle" : state == AnimationState::Walk ? "Walking" : "Jumping");
+            ImGui::Text("Blend Factor: %f", blendFactor);
         }
     }
 
