@@ -6,12 +6,18 @@
 
 #include <iostream>
 #include <GL/glew.h>
-#ifdef __APPLE__
+#ifdef __WIN32__
+#include <windows.h>
+#include <GL/gl.h>
+#elif __APPLE__
 #include <OpenGL/gl.h>
 #else
 #define NOMINMAX
-#include <windows.h>
+//#include <windows.h>
 #include <GL/gl.h>
+#include <stdarg.h>
+#include <memory>
+#include <cstring>
 #endif
 
 static inline const char *GetGLErrorString(GLenum error)

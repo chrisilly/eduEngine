@@ -64,7 +64,7 @@ message(STATUS "Fetching SDL2")
 FetchContent_Declare(
     sdl2
     GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-    GIT_TAG        release-2.30.2 # April 2nd 2024
+    GIT_TAG        release-2.32.8 # April 2nd 2024
 )
 FetchContent_GetProperties(sdl2)
 if(NOT sdl2_POPULATED)
